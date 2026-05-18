@@ -5,9 +5,9 @@ import { dirname, resolve, isAbsolute, join } from 'node:path';
 import { mdTable } from './filters/md-table.js';
 import { jsonPretty } from './filters/json-pretty.js';
 import { ghCallout } from './filters/gh-callout.js';
-import { makeMermaid } from './filters/mermaid.js';
 import { makeCodeExpand } from './filters/code-expand.js';
-import { ciSummary } from './filters/ci-summary.js';
+import { deltaTable } from './filters/delta-table.js';
+import { fold } from './filters/fold.js';
 
 export interface Frontmatter {
   title?: string;
@@ -93,16 +93,16 @@ export async function renderPR(templatePath: string, evidenceDir: string, outPat
   env.addGlobal('evidence_dir', evidenceAbs);
 
   // Filter registry — see ARCHITECTURE.md §Filter Library for signatures.
-  // Factories bind path-context to filters that read files (mermaid → evidence dir;
-  // code_expand → frontmatter.root_path with per-call override).
+  // Factory binds path-context for the only file-reading filter (code_expand →
+  // frontmatter.root_path with per-call override).
   const defaultRootPath =
     typeof frontmatter.root_path === 'string' ? frontmatter.root_path : undefined;
   env.addFilter('md_table', mdTable);
   env.addFilter('json_pretty', jsonPretty);
   env.addFilter('gh_callout', ghCallout);
-  env.addFilter('mermaid', makeMermaid(evidenceAbs));
   env.addFilter('code_expand', makeCodeExpand(defaultRootPath));
-  env.addFilter('ci_summary', ciSummary);
+  env.addFilter('delta_table', deltaTable);
+  env.addFilter('fold', fold);
 
   const rendered = env.renderString(body, { meta: frontmatter });
 

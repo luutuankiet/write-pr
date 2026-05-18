@@ -3,7 +3,7 @@ title: "Demo PR: add widget cache"
 root_path: "/tmp/widget-repo"
 ---
 
-[[ 'TIP' | gh_callout('Synthetic demo PR — exercises every write-pr filter and one snippet include. Real refactor PRs follow the same skeleton.') ]]
+[[ 'TIP' | gh_callout('Synthetic demo PR — exercises every write-pr v0.2 filter and one snippet include. Real refactor PRs follow the same skeleton.') ]]
 
 [% set tldr_rows = load_json('queries/q_synthetic.json').summary %]
 [% include 'snippets/tldr_kv_table.j2' %]
@@ -16,10 +16,21 @@ root_path: "/tmp/widget-repo"
 
 [[ load_json('queries/q_synthetic.json').validation | md_table ]]
 
+## Before / After
+
+[% set perf = load_json('queries/q_synthetic.json') %]
+[[ perf.before | delta_table(perf.after) ]]
+
 ## Data Flow
 
-[[ 'diagrams/widget_flow.mmd' | mermaid ]]
+```mermaid
+flowchart LR
+    A["Request"] --> B["WidgetCache"]
+    B -->|miss| C["DB"]
+    B -->|hit| D["Response"]
+    C --> D
+```
 
 ## Appendix
 
-[[ load_json('queries/q_synthetic.json') | json_pretty(fold=true, summary='Raw query result (JSON)') ]]
+[[ load_json('queries/q_synthetic.json') | json_pretty | fold('Raw query result (JSON)') ]]

@@ -1,7 +1,7 @@
 # Demo PR: add widget cache
 
 > [!TIP]
-> Synthetic demo PR — exercises every write-pr filter and one snippet include. Real refactor PRs follow the same skeleton.
+> Synthetic demo PR — exercises every write-pr v0.2 filter and one snippet include. Real refactor PRs follow the same skeleton.
 
 
 
@@ -34,6 +34,15 @@ class WidgetCache:
 | test_widget_cache_hit | pass | 12 |
 | test_widget_cache_miss | pass | 18 |
 | test_widget_eviction | pass | 9 |
+
+## Before / After
+
+
+| metric | before | after | Δ |
+| :--- | :--- | :--- | :--- |
+| p95 latency (ms) | 1450 | 55 | -1395 (-96%) |
+| errors/min | 12 | 0 | -12 (-100%) |
+| cache region | us-east | global | changed |
 
 ## Data Flow
 
@@ -80,6 +89,34 @@ flowchart LR
       "test_name": "test_widget_eviction",
       "status": "pass",
       "duration_ms": 9
+    }
+  ],
+  "before": [
+    {
+      "metric": "p95 latency (ms)",
+      "value": 1450
+    },
+    {
+      "metric": "errors/min",
+      "value": 12
+    },
+    {
+      "metric": "cache region",
+      "value": "us-east"
+    }
+  ],
+  "after": [
+    {
+      "metric": "p95 latency (ms)",
+      "value": 55
+    },
+    {
+      "metric": "errors/min",
+      "value": 0
+    },
+    {
+      "metric": "cache region",
+      "value": "global"
     }
   ]
 }

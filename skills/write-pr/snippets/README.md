@@ -35,9 +35,9 @@ duplicating the markdown structure.
 | `before_after_code.j2` | Stacked before/after code blocks | — |
 | `design_decision.j2` | Options table + chosen + rationale | `md_table` |
 | `numbered_validation.j2` | `### N. <Title>` validation sub-section | — |
-| `mermaid_flowchart.j2` | Fenced mermaid block from `.mmd` | `mermaid` |
+| `mermaid_flowchart.j2` | Inline mermaid block skeleton (pure markdown, no filter dep) | — |
 | `sql_appendix.j2` | Q-numbered SQL block w/ file:line header | `code_expand` |
-| `ci_failure_section.j2` | dbt CI run failure attribution | `ci_summary`, `load_json` |
+| `delta_table_perf.j2` | Before/after comparison (perf, config migration, schema diff) | `delta_table` |
 | `checklist.j2` | Bottom-of-PR reviewer checklist | — |
 
 ## Variable contract convention

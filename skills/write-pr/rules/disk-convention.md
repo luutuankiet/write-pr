@@ -9,8 +9,7 @@ write-pr expects a specific `evidence/` layout (relative to your `pr.md.j2`):
     ├── queries/      *.json from BQ / DuckDB / SQL runs (bq --format=prettyjson dumps)
     ├── code/         optional cache; usually read live from working tree via code_expand
     ├── images/       optional; usually skip in favor of paste-to-GitHub
-    ├── diagrams/     *.mmd Mermaid sources
-    └── ci_runs/      *.json from CI run results (dbt run_results.json, GH Actions artifacts)
+    └── perf/         *.json before/after shapes for delta_table comparisons (optional)
 ```
 
 ## Why this layout
@@ -19,8 +18,7 @@ write-pr expects a specific `evidence/` layout (relative to your `pr.md.j2`):
 |---|---|---|
 | `queries/` | `load_json('queries/q_X.json')` | Tabular data — feeds `md_table` filter |
 | `code/` | `load_text('code/X.py')` OR `code_expand` from source tree | Code blocks |
-| `diagrams/` | `'diagrams/X.mmd' \| mermaid` | Fenced mermaid blocks |
-| `ci_runs/` | `load_json('ci_runs/run_X.json') \| ci_summary([...])` | dbt CI summary |
+| `perf/` | `load_json('perf/before.json') \| delta_table(load_json('perf/after.json'))` | Before/after comparison tables |
 | `images/` | Usually unused — see below | — |
 
 ## Images: don't template them
@@ -35,7 +33,7 @@ Three distinct concepts:
 
 | Concept | What | Resolution |
 |---|---|---|
-| `--evidence <dir>` | Where `load_json` / `load_text` / `mermaid` resolve paths | Per-render flag |
+| `--evidence <dir>` | Where `load_json` / `load_text` resolve paths | Per-render flag |
 | `frontmatter.root_path` | Where `code_expand` resolves paths | Per-template YAML |
 | `process.cwd()` | Where npx is invoked from | Where snippet-include discovery walks up from |
 

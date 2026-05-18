@@ -1,5 +1,0 @@
-flowchart LR
-    A["Request"] --> B["WidgetCache"]
-    B -->|miss| C["DB"]
-    B -->|hit| D["Response"]
-    C --> D

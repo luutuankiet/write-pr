@@ -40,8 +40,20 @@ Value → fenced ```json block, optional `<details>` fold.
 
 **GOTCHA:** doesn't render styled inside `<details>` — see `callout-gotcha.md`.
 
-### `mermaid(path)`
-Read `.mmd` file (relative to evidence dir; absolute paths honored) → fenced ```mermaid block.
+### `delta_table(before, after, opts?)`
+Two arrays of `{key, value}` rows → 4-col table (key / before / after / Δ).
+- `opts.key`: join field. Default `'metric'`
+- `opts.value`: value field. Default `'value'`
+- `opts.precision`: decimals for numeric Δ. Default `2`
+- `opts.percent`: show `(±N%)` next to numeric Δ when before ≠ 0. Default `true`
+- `opts.key_label` / `before_label` / `after_label` / `delta_label`: override column headers
+
+Δ semantics: both numeric → `+15 (+12%)`; missing side → `added` / `removed`; strings → `changed` if different, blank if same.
+
+```jinja
+[[ before_rows | delta_table(after_rows) ]]
+[[ before_rows | delta_table(after_rows, {key: 'endpoint', value: 'p95_ms', percent: false}) ]]
+```
 
 ### `code_expand(path, lines?, lang?, root_path?, annotate?)`
 Read source file (relative to frontmatter.root_path) → fenced code block with `# <path>:<lines>` header.
@@ -50,10 +62,21 @@ Read source file (relative to frontmatter.root_path) → fenced code block with 
 - `root_path`: per-call override of frontmatter (or `evidence_dir` for self-contained examples)
 - `annotate`: `{lineNum: 'note text'}` map; appends ` <comment> <- text` to the matching line
 
-### `ci_summary(runResults, our_models)`
-dbt `run_results.json` → status counts table + errors block + (optional) our-models breakdown.
-- Two-arg form: `[[ runs | ci_summary(['model.proj.foo']) ]]`
-- Opts form: `[[ runs | ci_summary({our_models: [...], message_cap: 300}) ]]`
+### `fold(content, summaryOrOpts?)`
+Wrap any content in a `<details><summary>` block. Composable with every other filter.
+- `summaryOrOpts`: string shortcut for the summary label, OR `{summary, open}` object
+- `summary`: collapsed label. Default `'Details'`
+- `open`: render expanded. Default `false`
+
+```jinja
+[[ long_text | fold ]]
+[[ long_text | fold('Full log') ]]
+[[ rows | md_table | fold(summary='Validation results', open=true) ]]
+[[ payload | json_pretty | fold('Raw query result (JSON)') ]]
+```
+
+**NOTE:** `json_pretty(fold=true)` is still supported for back-compat, but prefer composing
+with the `fold` filter — it works for any string, not just JSON output.
 
 ## Custom delimiters (MANDATORY)
 

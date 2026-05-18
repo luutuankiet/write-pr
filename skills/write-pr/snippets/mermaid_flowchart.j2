@@ -1,17 +1,23 @@
-[# mermaid_flowchart.j2 — fenced mermaid block from a .mmd evidence file.
-   3/7 surveyed PRs used a flowchart; ALL were `flowchart LR` (zero sequence/state diagrams).
+[# mermaid_flowchart.j2 — skeleton for an inline mermaid block.
 
-   Variables expected in scope:
-     diagram_path:  path to .mmd file, relative to the --evidence directory
-                    (absolute paths are also honored)
+   As of v0.2.0, write-pr does NOT ship a `mermaid` filter — Mermaid sources are
+   rarely worth saving as separate `.mmd` evidence files. Author the
+   fenced mermaid block INLINE in your template (or copy this skeleton).
 
-   Convention: store diagrams in evidence/diagrams/*.mmd
+   GitHub renders mermaid fences natively inside PR bodies AND release notes.
 
-   Example .mmd content:
-     flowchart LR
-         A["Source table"] --> B["Stage model"]
-         B --> C["Intermediate model"]
-         C --> D["Mart"]
+   Variables expected in scope: none (pure-markdown skeleton; edit inline).
+
+   Common shapes:
+     - flowchart LR / TD  — request flow, data pipeline
+     - sequenceDiagram    — auth handshake, RPC call chain
+     - stateDiagram-v2    — state machine
 #]
 
-[[ diagram_path | mermaid ]]
+## Data Flow
+
+```mermaid
+flowchart LR
+    A["Source"] --> B["Transform"]
+    B --> C["Sink"]
+```

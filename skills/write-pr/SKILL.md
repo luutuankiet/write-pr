@@ -28,7 +28,7 @@ Skip this skill for trivial PRs (typo fixes, single-line config tweaks, dependen
 Agent → 1. Gather evidence on the working host:
           - Run BQ/DuckDB queries → dump prettyjson to evidence/queries/*.json
           - Fetch CI artifacts → save to evidence/ci_runs/*.json
-          - Author mermaid diagrams → save to evidence/diagrams/*.mmd
+          - (Optional) save shaped before/after JSON → evidence/queries/*.json for delta_table
         2. Write pr.md.j2 referencing those disk paths via Nunjucks helpers
         3. Invoke: npx -y @luutuankiet/write-pr render \
              --template pr.md.j2 \
@@ -59,11 +59,11 @@ Templates use `[[ ]]` for variables and `[% %]` for blocks.
 | Filter | Use | Example |
 |---|---|---|
 | `md_table` | JSON array → markdown table | `[[ load_json('q.json') \| md_table ]]` |
-| `json_pretty` | Value → fenced \`\`\`json block, optional `<details>` fold | `[[ obj \| json_pretty(fold=true) ]]` |
+| `json_pretty` | Value → fenced \`\`\`json block | `[[ obj \| json_pretty ]]` |
 | `gh_callout` | GitHub callout (TIP/NOTE/IMPORTANT/WARNING/CAUTION) | `[[ 'TIP' \| gh_callout('schema is bw-compat') ]]` |
-| `mermaid` | Read `.mmd` file → fenced \`\`\`mermaid block | `[[ 'diagrams/flow.mmd' \| mermaid ]]` |
 | `code_expand` | Read source file → fenced code block w/ file:line header | `[[ 'src/foo.sql' \| code_expand(lines='10-25') ]]` |
-| `ci_summary` | dbt `run_results.json` → status + errors + our-models | `[[ load_json('ci_runs/r.json') \| ci_summary(['model.proj.foo']) ]]` |
+| `delta_table` | Two JSON arrays → before/after table w/ computed Δ | `[[ before \| delta_table(after) ]]` |
+| `fold` | Wrap ANY content in `<details><summary>` block | `[[ rows \| md_table \| fold('Validation') ]]` |
 
 Full signatures: `rules/placeholder-vocab.md`. Two known custom-delim edge cases: `rules/template-gotchas.md`.
 
@@ -79,9 +79,9 @@ Full signatures: `rules/placeholder-vocab.md`. Two known custom-delim edge cases
 | `before_after_code.j2` | Stacked before/after code | — |
 | `design_decision.j2` | Options table + chosen + rationale | `md_table` |
 | `numbered_validation.j2` | `### N. <Title>` sub-section | — |
-| `mermaid_flowchart.j2` | Fenced mermaid block from `.mmd` | `mermaid` |
+| `mermaid_flowchart.j2` | Inline mermaid block skeleton (no filter dep) | — |
 | `sql_appendix.j2` | Q-numbered SQL with file:line header | `code_expand` |
-| `ci_failure_section.j2` | dbt CI run attribution | `ci_summary`, `load_json` |
+| `delta_table_perf.j2` | Before/after comparison (perf, config, schema diff) | `delta_table` |
 | `checklist.j2` | Bottom-of-PR reviewer checklist | — |
 
 Two usage modes: copy-paste (most agents) or `[% include 'snippets/X.j2' %]` (the renderer walks up from cwd / template dir to find the install location). See `snippets/README.md`.
