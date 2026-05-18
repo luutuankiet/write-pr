@@ -1,0 +1,12 @@
+{
+  "summary": [
+    {"metric": "Wall time before", "value": "1450ms"},
+    {"metric": "Wall time after", "value": "55ms"},
+    {"metric": "Reduction", "value": "96%"}
+  ],
+  "validation": [
+    {"test_name": "test_widget_cache_hit", "status": "pass", "duration_ms": 12},
+    {"test_name": "test_widget_cache_miss", "status": "pass", "duration_ms": 18},
+    {"test_name": "test_widget_eviction", "status": "pass", "duration_ms": 9}
+  ]
+}

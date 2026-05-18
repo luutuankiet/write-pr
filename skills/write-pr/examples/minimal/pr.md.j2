@@ -1,0 +1,17 @@
+---
+title: "Demo PR: add widget cache"
+root_path: "/repo/root"
+---
+
+## TL;DR
+
+[[ load_json('queries/q_synthetic.json').summary | md_table ]]
+
+## Changes
+
+- Added `WidgetCache` class
+- Wired cache into `WidgetService.get_by_id()`
+
+## Validation
+
+[[ load_json('queries/q_synthetic.json').validation | md_table ]]

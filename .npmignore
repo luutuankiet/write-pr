@@ -1,0 +1,25 @@
+# Source - dist/ is what ships
+src/
+tsconfig.json
+*.tsbuildinfo
+
+# Repo housekeeping
+.github/
+.gitignore
+.npmignore
+
+# Private design docs (also in .gitignore but defense in depth)
+gsd-lite/
+
+# Releases narrative (consumed by GH Actions, not by npm consumers)
+releases/
+
+# Tests + dev artifacts
+tests/
+*.test.ts
+*.test.js
+/tmp_out/
+PR.rendered.local.md
+
+# Optional large reference example (kept in repo for posterity, not in tarball)
+examples/intr_orders_full/

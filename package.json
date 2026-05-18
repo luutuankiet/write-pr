@@ -1,0 +1,59 @@
+{
+  "name": "@luutuankiet/write-pr",
+  "version": "0.1.0-alpha.0",
+  "description": "Evidence-driven Pull Request templating for Claude Code agents",
+  "type": "module",
+  "bin": {
+    "write-pr": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "keywords": [
+    "claude-code",
+    "claude-code-skill",
+    "pr",
+    "pull-request",
+    "template",
+    "nunjucks",
+    "evidence-driven"
+  ],
+  "author": "luutuankiet",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luutuankiet/write-pr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/luutuankiet/write-pr/issues"
+  },
+  "homepage": "https://github.com/luutuankiet/write-pr#readme",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "js-yaml": "^4.1.0",
+    "nunjucks": "^3.2.4"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.5.0",
+    "@types/nunjucks": "^3.2.6",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}

@@ -1,0 +1,107 @@
+name: publish
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag name (e.g., v0.1.0)'
+        required: true
+
+permissions:
+  contents: write   # gh release create
+  id-token: write   # OIDC provenance for npm publish (Trusted Publisher on npmjs.com)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          # ⚠️ Do NOT set registry-url here — it injects NODE_AUTH_TOKEN
+          # placeholder which poisons OIDC auth (actions/setup-node#1440)
+      - name: Verify tag matches package.json version
+        if: github.event_name == 'push'
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag ($TAG_VERSION) != package.json ($PKG_VERSION). Bump version before tagging."
+            exit 1
+          fi
+          echo "Tag and package.json version match: $PKG_VERSION"
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm pack --dry-run
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve tag name
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag: $TAG"
+      - name: Verify release notes file exists
+        run: |
+          NOTES="releases/${{ steps.tag.outputs.tag }}.md"
+          if [ ! -f "$NOTES" ]; then
+            echo "::error::Missing $NOTES. Every tag needs a hand-written narrative entry."
+            echo "::error::See releases/README.md for the authoring pattern."
+            exit 1
+          fi
+          echo "Found $NOTES ($(wc -l < $NOTES) lines)"
+      - name: Create GitHub release from narrative notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "${{ steps.tag.outputs.tag }}" --title "${{ steps.tag.outputs.tag }}" --notes-file "releases/${{ steps.tag.outputs.tag }}.md"
+
+  publish:
+    needs: [build, release]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          # No registry-url — OIDC Trusted Publisher handles auth (see build job comment)
+      - run: npm ci
+      - run: npm run build
+      - name: Resolve dist-tag from version
+        id: dist
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [[ "$VERSION" == *-dev.* ]]; then
+            TAG=dev
+          elif [[ "$VERSION" == *-rc.* || "$VERSION" == *-beta.* || "$VERSION" == *-alpha.* ]]; then
+            TAG=next
+          else
+            TAG=latest
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing $VERSION with dist-tag $TAG"
+      - name: Publish to npm (OIDC Trusted Publisher + provenance)
+        # No NODE_AUTH_TOKEN env — OIDC Trusted Publisher on npmjs.com handles auth.
+        # Configure once: npmjs.com → Package Settings → Publishing access → Linked Provider:
+        #   Repository: luutuankiet/write-pr
+        #   Workflow filename: publish.yml
+        #   Environment: (leave blank)
+        # CAVEAT: `npm install -g npm@latest` breaks on Node 22.22.2 (MODULE_NOT_FOUND promise-retry).
+        # Use `npx -y npm@latest publish` instead.
+        run: npx -y npm@latest publish --access public --provenance --tag "${{ steps.dist.outputs.tag }}"

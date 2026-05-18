@@ -1,0 +1,23 @@
+# Private design docs - NEVER commit to public repo
+gsd-lite/
+
+# Node
+node_modules/
+dist/
+*.log
+npm-debug.log*
+
+# Build artifacts
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Local test outputs
+/tmp_out/
+PR.rendered.local.md
