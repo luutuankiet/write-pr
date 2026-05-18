@@ -1,17 +1,25 @@
 ---
 title: "Demo PR: add widget cache"
-root_path: "/repo/root"
+root_path: "/tmp/widget-repo"
 ---
 
-## TL;DR
+[[ 'TIP' | gh_callout('Synthetic demo PR — exercises every write-pr filter and one snippet include. Real refactor PRs follow the same skeleton.') ]]
 
-[[ load_json('queries/q_synthetic.json').summary | md_table ]]
+[% set tldr_rows = load_json('queries/q_synthetic.json').summary %]
+[% include 'snippets/tldr_kv_table.j2' %]
 
 ## Changes
 
-- Added `WidgetCache` class
-- Wired cache into `WidgetService.get_by_id()`
+[[ 'code/widget_cache.py' | code_expand(root_path=evidence_dir, lines='1-6') ]]
 
 ## Validation
 
 [[ load_json('queries/q_synthetic.json').validation | md_table ]]
+
+## Data Flow
+
+[[ 'diagrams/widget_flow.mmd' | mermaid ]]
+
+## Appendix
+
+[[ load_json('queries/q_synthetic.json') | json_pretty(fold=true, summary='Raw query result (JSON)') ]]

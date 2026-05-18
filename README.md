@@ -44,4 +44,3 @@ See [`skills/write-pr/SKILL.md`](skills/write-pr/SKILL.md) for the agent-facing 
 ## License
 
 MIT — see [`LICENSE`](LICENSE).
-# write-pr

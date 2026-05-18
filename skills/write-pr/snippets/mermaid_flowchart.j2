@@ -1,0 +1,17 @@
+[# mermaid_flowchart.j2 — fenced mermaid block from a .mmd evidence file.
+   3/7 surveyed PRs used a flowchart; ALL were `flowchart LR` (zero sequence/state diagrams).
+
+   Variables expected in scope:
+     diagram_path:  path to .mmd file, relative to the --evidence directory
+                    (absolute paths are also honored)
+
+   Convention: store diagrams in evidence/diagrams/*.mmd
+
+   Example .mmd content:
+     flowchart LR
+         A["Source table"] --> B["Stage model"]
+         B --> C["Intermediate model"]
+         C --> D["Mart"]
+#]
+
+[[ diagram_path | mermaid ]]

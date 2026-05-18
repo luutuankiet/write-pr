@@ -54,26 +54,47 @@ Templates use `[[ ]]` for variables and `[% %]` for blocks.
 
 **Why:** default `{{ }}` collides with dbt-Jinja inside code-fence evidence and silently renders to empty string.
 
-## Filter reference (Phase 1)
+## Filter reference
 
 | Filter | Use | Example |
 |---|---|---|
 | `md_table` | JSON array → markdown table | `[[ load_json('q.json') \| md_table ]]` |
+| `json_pretty` | Value → fenced \`\`\`json block, optional `<details>` fold | `[[ obj \| json_pretty(fold=true) ]]` |
+| `gh_callout` | GitHub callout (TIP/NOTE/IMPORTANT/WARNING/CAUTION) | `[[ 'TIP' \| gh_callout('schema is bw-compat') ]]` |
+| `mermaid` | Read `.mmd` file → fenced \`\`\`mermaid block | `[[ 'diagrams/flow.mmd' \| mermaid ]]` |
+| `code_expand` | Read source file → fenced code block w/ file:line header | `[[ 'src/foo.sql' \| code_expand(lines='10-25') ]]` |
+| `ci_summary` | dbt `run_results.json` → status + errors + our-models | `[[ load_json('ci_runs/r.json') \| ci_summary(['model.proj.foo']) ]]` |
 
-Phases 2-3 add: `code_expand`, `ci_summary`, `gh_callout`, `json_pretty`, `mermaid`.
+Full signatures: `rules/placeholder-vocab.md`. Two known custom-delim edge cases: `rules/template-gotchas.md`.
 
 ## Snippets (composable section patterns)
 
-Phase 3 will ship 10 snippets at `snippets/*.j2`. For now, see `examples/minimal/pr.md.j2` for a worked example of the rendering mechanic.
+10 snippets at `snippets/*.j2` covering the most-frequent sections from a survey of 7 real PRs (5/7: TL;DR + Validation + Changes; 4/7: Before/After + Checklist; 3/7: Mermaid flowchart):
 
-## Rules of thumb (stubs for Phase 2)
+| Snippet | Section | Filters used |
+|---|---|---|
+| `tldr_kv_table.j2` | Top-of-PR metrics summary | `md_table` |
+| `manifest_tip_header.j2` | TIP callout + ticket link | `gh_callout` |
+| `before_after_img_table.j2` | 2-col before/after screenshots | — |
+| `before_after_code.j2` | Stacked before/after code | — |
+| `design_decision.j2` | Options table + chosen + rationale | `md_table` |
+| `numbered_validation.j2` | `### N. <Title>` sub-section | — |
+| `mermaid_flowchart.j2` | Fenced mermaid block from `.mmd` | `mermaid` |
+| `sql_appendix.j2` | Q-numbered SQL with file:line header | `code_expand` |
+| `ci_failure_section.j2` | dbt CI run attribution | `ci_summary`, `load_json` |
+| `checklist.j2` | Bottom-of-PR reviewer checklist | — |
 
-- `rules/workflow.md` — full agent workflow
-- `rules/disk-convention.md` — evidence/ directory layout
-- `rules/placeholder-vocab.md` — filter signatures + examples
-- `rules/private-notation.md` — pre-render grep checklist (NEVER ship LOG-NNN / TASK-NNN / gsd-lite refs)
-- `rules/callout-gotcha.md` — GitHub `[!TIP]` does NOT render inside `<details>` (plain text only)
-- `rules/root-path.md` — frontmatter `root_path:` for repo-relative file:line cites
+Two usage modes: copy-paste (most agents) or `[% include 'snippets/X.j2' %]` (the renderer walks up from cwd / template dir to find the install location). See `snippets/README.md`.
+
+## Rules of thumb
+
+- `rules/workflow.md` — the 5-step agent workflow (gather → template → render → pre-flight greps → paste)
+- `rules/disk-convention.md` — evidence/ directory layout (queries/code/diagrams/ci_runs/images) + cwd vs evidence vs root_path
+- `rules/placeholder-vocab.md` — full filter + global signatures with examples
+- `rules/private-notation.md` — pre-render grep checklist (NEVER ship LOG-NNN / TASK-NNN / gsd-lite refs) + client-info scrubbing
+- `rules/callout-gotcha.md` — GitHub `[!TIP]` does NOT render styled inside `<details>` (plain text only); put callouts outside
+- `rules/root-path.md` — frontmatter `root_path:` for repo-relative file:line citations
+- `rules/template-gotchas.md` — two custom-delim edge cases (`[[[ ]]]` trap, literal-filter-in-prose) + workarounds
 
 ## Quick test (verify install)
 

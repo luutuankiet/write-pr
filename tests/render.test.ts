@@ -37,6 +37,38 @@ describe('renderPR — custom Jinja delimiters dodge dbt-Jinja collision', () =>
   });
 });
 
+describe('renderPR — template gotchas (Phase 2 A regression)', () => {
+  it('GOTCHA 1: literal [x] / [ ] checkboxes survive via [% if %] blocks (no [[[ trap)', async () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'write-pr-gotcha1-'));
+    const tpl = join(tmp, 't.j2');
+    writeFileSync(
+      tpl,
+      `---\ntitle: "T"\n---\n\n[% set checked = true %]- [% if checked %][x][% else %][ ][% endif %] item\n[% set checked = false %]- [% if checked %][x][% else %][ ][% endif %] item2\n`,
+    );
+    const out = join(tmp, 'out.md');
+    await renderPR(tpl, tmp, out);
+    const txt = readFileSync(out, 'utf8');
+    expect(txt).toContain('- [x] item');
+    expect(txt).toContain('- [ ] item2');
+  });
+
+  it('GOTCHA 2: string-literal interpolation preserves literal [[ ... ]] in prose', async () => {
+    // Documentation pattern: to write LITERAL `[[ rows | md_table ]]` in prose (e.g. when documenting
+    // the API in a PR body), wrap the literal in a string-literal variable interpolation.
+    // [% raw %] does NOT work with custom delimiters (nunjucks raw-mode lexer hard-codes default {% %}).
+    const tmp = mkdtempSync(join(tmpdir(), 'write-pr-gotcha2-'));
+    const tpl = join(tmp, 't.j2');
+    writeFileSync(
+      tpl,
+      `---\ntitle: "T"\n---\n\nUse \`[[ "[[ rows | md_table ]]" ]]\` to render a table.\n`,
+    );
+    const out = join(tmp, 'out.md');
+    await renderPR(tpl, tmp, out);
+    const txt = readFileSync(out, 'utf8');
+    expect(txt).toContain('`[[ rows | md_table ]]`');
+  });
+});
+
 describe('renderPR — frontmatter title prepend', () => {
   it('prepends title heading when body does not start with `# `', async () => {
     const tmp = mkdtempSync(join(tmpdir(), 'write-pr-title1-'));

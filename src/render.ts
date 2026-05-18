@@ -1,8 +1,13 @@
 import nunjucks from 'nunjucks';
 import yaml from 'js-yaml';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, resolve, isAbsolute, join } from 'node:path';
 import { mdTable } from './filters/md-table.js';
+import { jsonPretty } from './filters/json-pretty.js';
+import { ghCallout } from './filters/gh-callout.js';
+import { makeMermaid } from './filters/mermaid.js';
+import { makeCodeExpand } from './filters/code-expand.js';
+import { ciSummary } from './filters/ci-summary.js';
 
 export interface Frontmatter {
   title?: string;
@@ -21,6 +26,27 @@ function resolveUnder(base: string, rel: string): string {
   return isAbsolute(rel) ? rel : join(base, rel);
 }
 
+/**
+ * Walk up from `start` looking for a `.claude/skills/write-pr/` or bare `skills/write-pr/`
+ * dir that contains a `snippets/` subdir. Returns the bundle base path (the dir CONTAINING
+ * `snippets/`) so the nunjucks loader can resolve `[% include 'snippets/X.j2' %]`.
+ *
+ * Honors both install location (.claude/skills/write-pr/) and bundle/dev location (skills/write-pr/).
+ */
+function findSnippetsParent(start: string): string | null {
+  let cur = resolve(start);
+  for (let i = 0; i < 12; i++) {
+    for (const sub of ['.claude/skills/write-pr', 'skills/write-pr']) {
+      const candidate = join(cur, sub);
+      if (existsSync(join(candidate, 'snippets'))) return candidate;
+    }
+    const parent = dirname(cur);
+    if (parent === cur) break;
+    cur = parent;
+  }
+  return null;
+}
+
 export async function renderPR(templatePath: string, evidenceDir: string, outPath: string): Promise<void> {
   const templateAbs = resolve(templatePath);
   const evidenceAbs = resolve(evidenceDir);
@@ -29,9 +55,17 @@ export async function renderPR(templatePath: string, evidenceDir: string, outPat
   const source = readFileSync(templateAbs, 'utf8');
   const { frontmatter, body } = parseFrontmatter(source);
 
+  // Build loader search paths: template dir first (user's own includes resolve here),
+  // then any reachable write-pr bundle so `[% include 'snippets/X.j2' %]` works.
+  const searchPaths = [dirname(templateAbs)];
+  for (const start of [process.cwd(), dirname(templateAbs)]) {
+    const found = findSnippetsParent(start);
+    if (found && !searchPaths.includes(found)) searchPaths.push(found);
+  }
+
   // Custom Jinja delimiters to dodge dbt-Jinja `{{ }}` collision inside code fences.
   // MANDATORY — see ARCHITECTURE.md §Critical Gotchas in gsd-lite.
-  const env = nunjucks.configure(dirname(templateAbs), {
+  const env = nunjucks.configure(searchPaths, {
     autoescape: false,
     throwOnUndefined: false,
     tags: {
@@ -54,9 +88,21 @@ export async function renderPR(templatePath: string, evidenceDir: string, outPat
     return readFileSync(abs, 'utf8');
   });
   env.addGlobal('meta', frontmatter);
+  // Absolute path to evidence dir — lets templates pass `root_path=evidence_dir` into
+  // code_expand when rendering code that lives next to the evidence (synthetic examples).
+  env.addGlobal('evidence_dir', evidenceAbs);
 
-  // Filter registry — Phase 1 ships md_table only. Phases 2-3 add the rest.
+  // Filter registry — see ARCHITECTURE.md §Filter Library for signatures.
+  // Factories bind path-context to filters that read files (mermaid → evidence dir;
+  // code_expand → frontmatter.root_path with per-call override).
+  const defaultRootPath =
+    typeof frontmatter.root_path === 'string' ? frontmatter.root_path : undefined;
   env.addFilter('md_table', mdTable);
+  env.addFilter('json_pretty', jsonPretty);
+  env.addFilter('gh_callout', ghCallout);
+  env.addFilter('mermaid', makeMermaid(evidenceAbs));
+  env.addFilter('code_expand', makeCodeExpand(defaultRootPath));
+  env.addFilter('ci_summary', ciSummary);
 
   const rendered = env.renderString(body, { meta: frontmatter });
 
