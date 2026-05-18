@@ -135,7 +135,7 @@ Full signatures + 8 rule docs (incl. `good-pr-traits.md`) + 10 snippet patterns 
 
 The skill describes 7 quality traits agents should hit regardless of section structure:
 
-1. **Spoon-feed evidence inline** — every assertion followed by the data that proves it (table / JSON / SQL / diagram), no "see X" pointers
+1. **Spoon-feed evidence inline** — every assertion followed by the data that proves it (table / JSON / SQL / mermaid diagram for topology + state + flow), no "see X" pointers
 2. **Resolve private context** — translate symbolic (internal log/task IDs, private doc refs) AND verbal ("prior cycles", "baseline", "previously") private references into plain english + reproducible anchors
 3. **Collapse at section boundary** — every top-level `##` IS the `<summary>` of a `<details>` wrap, not just inner blocks (GitHub PR view has no TOC, so a long PR is a wall of text on first paint)
 4. **Anchor prior-run claims to a reproducible ID** — "baseline failure rate" gets a job ID + inline result table

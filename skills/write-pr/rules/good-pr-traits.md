@@ -8,7 +8,7 @@ write-pr does NOT prescribe a section outline. Pick the structure that fits the 
 
 ### 1. Spoon-feed evidence inline
 
-Every assertion is followed by the data that proves it, in the PR body. A reviewer should never open another tab to understand a claim.
+Every assertion is followed by the data that proves it, in the PR body. A reviewer should never open another tab to understand a claim. Evidence takes multiple forms — tabular data, code, SQL, AND **diagrams** (mermaid renders natively on GitHub; use it for topology, state machines, sequence flows, data lineage).
 
 | Good | Bad |
 |---|---|
@@ -16,8 +16,13 @@ Every assertion is followed by the data that proves it, in the PR body. A review
 | SQL diff pasted in fenced block | "we changed the JOIN logic" |
 | `code_expand` of the changed range | "see `models/foo.sql`" (no line, no content) |
 | `[[ rows \| md_table ]]` for query results | "the validation returned 124,959 / 124,959" (no table) |
+| Inline ```mermaid``` block for topology / state machine / sequence / data flow | "data flows from A → B → C" (described in prose, never drawn) |
 
-Behavior: before finalizing each section, scan for `"see X"` / `"check X"` / `"the result was Y"` with no inline result. Paste the evidence or remove the claim.
+Behavior: before finalizing each section, scan for two trigger classes:
+- `"see X"` / `"check X"` / `"the result was Y"` — missing tabular / code / SQL evidence → paste it inline
+- `"flows from"` / `"the topology"` / `"the sequence"` / `"the state machine"` / `"data lineage"` — missing diagram → add an inline mermaid block
+
+**Mermaid note:** the `mermaid` filter was dropped in v0.2.0 (over-niche for disk-artifact use case — agents rarely have a `.mmd` file pre-authored on disk). Author mermaid blocks INLINE in the template; `snippets/mermaid_flowchart.j2` has a copy-paste skeleton with common shape patterns.
 
 ### 2. Resolve private context to plain english
 
