@@ -30,4 +30,5 @@ git push origin vX.Y.Z
 ## Index
 | Version | Date | Theme |
 |---|---|---|
+| [v0.1.0-alpha.1](./v0.1.0-alpha.1.md) | 2026-05-18 | OIDC publish verification - no functional change |
 | [v0.1.0-alpha.0](./v0.1.0-alpha.0.md) | 2026-05-18 | Initial alpha: render CLI + install-skill CLI + bundled minimal example + 1 filter (md_table) + 18 vitest cases |
