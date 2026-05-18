@@ -129,7 +129,21 @@ npx -y @luutuankiet/write-pr render \
 | `delta_table` | Two arrays → before/after table with computed Δ |
 | `fold` | Wrap any content in `<details>` collapsible |
 
-Full signatures + 7 rules of thumb + 10 snippet patterns ship inside the skill bundle. See [`skills/write-pr/SKILL.md`](skills/write-pr/SKILL.md) for the agent-facing entry point.
+Full signatures + 8 rule docs (incl. `good-pr-traits.md`) + 10 snippet patterns ship inside the skill bundle. See [`skills/write-pr/SKILL.md`](skills/write-pr/SKILL.md) for the agent-facing entry point.
+
+## What makes a good PR
+
+The skill describes 7 quality traits agents should hit regardless of section structure:
+
+1. **Spoon-feed evidence inline** — every assertion followed by the data that proves it (table / JSON / SQL / diagram), no "see X" pointers
+2. **Resolve private context** — translate symbolic (internal log/task IDs, private doc refs) AND verbal ("prior cycles", "baseline", "previously") private references into plain english + reproducible anchors
+3. **Collapse at section boundary** — every top-level `##` IS the `<summary>` of a `<details>` wrap, not just inner blocks (GitHub PR view has no TOC, so a long PR is a wall of text on first paint)
+4. **Anchor prior-run claims to a reproducible ID** — "baseline failure rate" gets a job ID + inline result table
+5. **Text-fallback for auth-gated links** — GCP / dbt-Cloud / internal-dashboard URLs come with an inline summary, since reviewers outside the org see a 401
+6. **Tag hypothesis vs measurement** — "likely / probably / suggests" flagged or backed with the confirming query
+7. **File citations carry line ranges** — `src/foo.sql:42-58`, not bare `src/foo.sql`
+
+Framing: **describe traits, not enforce template** — pick the section outline that fits the change; the traits apply regardless. Full descriptions + Good/Bad tables + agent-behavior heuristics in [`skills/write-pr/rules/good-pr-traits.md`](skills/write-pr/rules/good-pr-traits.md).
 
 ## Custom Jinja delimiters (important)
 
