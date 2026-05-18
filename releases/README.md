@@ -30,6 +30,7 @@ git push origin vX.Y.Z
 ## Index
 | Version | Date | Theme |
 |---|---|---|
+| [v0.2.1](./v0.2.1.md) | 2026-05-19 | Docs patch: 7 quality traits + README rewrite + mermaid trait elevation |
 | [v0.2.0](./v0.2.0.md) | 2026-05-18 | Generic filter pivot: dropped mermaid + ci_summary, added delta_table + fold |
 | [v0.1.0](./v0.1.0.md) | 2026-05-18 | First stable channel: full filter library (6), snippet patterns (10), rules-of-thumb (7), expanded round-trip example |
 | [v0.1.0-alpha.1](./v0.1.0-alpha.1.md) | 2026-05-18 | OIDC publish verification - no functional change |
