@@ -9,6 +9,8 @@ description: Render evidence-driven Pull Requests with inline file:line citation
 
 A two-step compile pattern for writing Pull Requests at the density of a 3-tier evidence stack — without paying for raw tool I/O in agent context.
 
+The skill describes **7 quality traits** a good PR has (see `rules/good-pr-traits.md`). It does NOT prescribe a section outline — structure is the agent's choice, the traits apply regardless.
+
 Reference quality bar: SCD-2 pre-explode refactor PR with per-product SUM validation, exhaustive 56-field schema audit, canonical multiset decomposition, plus CI-run failure attribution. 62 KB / 890 lines. Zero reviewer context-switching.
 
 ## When to use this skill
@@ -88,6 +90,7 @@ Two usage modes: copy-paste (most agents) or `[% include 'snippets/X.j2' %]` (th
 
 ## Rules of thumb
 
+- `rules/good-pr-traits.md` — **READ FIRST.** The 7 quality traits a good PR has (spoon-feed evidence, resolve private context [symbolic + verbal], collapse at section boundary, anchor prior runs, text-fallback for auth-gated links, hypothesis tag, file:line citations). Describes traits, NOT a template.
 - `rules/workflow.md` — the 5-step agent workflow (gather → template → render → pre-flight greps → paste)
 - `rules/disk-convention.md` — evidence/ directory layout (queries/code/diagrams/ci_runs/images) + cwd vs evidence vs root_path
 - `rules/placeholder-vocab.md` — full filter + global signatures with examples

@@ -51,3 +51,8 @@ The `manifest_tip_header.j2` snippet enforces this — TIP callout, then ticket 
 | Images (`<img>`) | ✅ yes |
 | Plain block quotes (`> text`) | ✅ yes (just no callout styling) |
 | GitHub callouts (`> [!TYPE]`) | ❌ NO — plain quote only |
+
+
+## Interaction with Trait 3 (`rules/good-pr-traits.md`)
+
+If you're following Trait 3 (every top-level `##` section wrapped in `<details>`), any callout that conceptually announces the section must be placed BEFORE the `<details>` wrap, not inside it. Otherwise it renders as plain quoted text. Place callouts at the TOP of the PR or between section wraps, never inside one.

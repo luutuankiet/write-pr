@@ -2,6 +2,10 @@
 
 The two-step compile pattern that makes write-pr useful.
 
+## Step 0: Read `rules/good-pr-traits.md` first
+
+Before writing a single line of template, internalize the 7 quality traits (spoon-feed evidence, resolve-private-context, collapse-at-section-boundary, anchor-prior-runs, text-fallback-for-auth-gated-links, hypothesis-tag, file-citation-line-range). They apply to every section regardless of which structure you choose.
+
 ## Step 1: Gather evidence ON the working host
 
 Don't pull tool I/O through your context. Dump it to disk:
@@ -51,12 +55,14 @@ npx -y @luutuankiet/write-pr render \
 ```bash
 # Check for private notation leaks — see rules/private-notation.md
 rg -n '\bLOG-[0-9]|\bTASK-[0-9]|WORK\.md|gsd-lite/' PR.md
-# Expected: zero matches
+# Expected: zero matches — HARD GATE
 
 # Check for unparsed variables (silent-empty renders)
 rg -n '\[\[ ' PR.md
 # Expected: zero matches — see rules/template-gotchas.md
 ```
+
+Then walk the deeper trait audit at the bottom of `rules/good-pr-traits.md` (orphan "see X" pointers, verbal private-context, top-level-section wrap count, hypothesis tags, file:line ranges). The trait audit is review-driven; the two greps above are the only HARD gates.
 
 ## Step 5: Paste rendered PR.md into GitHub PR body
 
