@@ -24,6 +24,8 @@ JSON array → markdown table.
 [[ rows | md_table(align={count: 'R', status: 'C'}) ]]
 ```
 
+**Size heuristic:** fold tables with >10 rows via `[[ rows | md_table | fold('...') ]]`. See Trait 3a in `good-pr-traits.md` for full thresholds across all block types.
+
 ### `json_pretty(data, indent?, fold?, summary?)`
 Value → fenced ```json block, optional `<details>` fold.
 - `indent`: default 2

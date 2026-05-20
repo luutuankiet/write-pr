@@ -52,6 +52,27 @@ Alternative pattern: leave `##` sections un-wrapped and use `fold` for individua
 
 Behavior: after rendering, top-level-section count (`^## `) should equal `<details><summary>## ` count (modulo intentional always-visible sections like TL;DR). Alternative pattern: `<details><summary>## ` count is 0 — folds appear at block level only.
 
+### 3a. Block-level collapse trigger (size heuristic)
+
+Trait 3 is about section-boundary wrapping. This is its block-level corollary for individual evidence dumps that don't warrant a whole section but still outscroll their own context.
+
+Cognitive ceiling, not browser-perf ceiling: a block bigger than ~one PR-pane scroll-height makes the reviewer lose orientation (the heading scrolls away before they finish reading the evidence). GitHub's renderer handles 500+ row tables fine; the binding constraint is human scannability.
+
+Default thresholds — inline below, fold above:
+
+| Block | Inline | Fold |
+|---|---|---|
+| `md_table` row count | ≤10 | >10 |
+| `delta_table` row count | ≤10 | >10 |
+| `json_pretty` line count | ≤15 | >15 |
+| `code_expand` line count | ≤25 | >25 |
+
+Compose with `fold`: `[[ rows | md_table | fold('Exhaustive 56-field audit') ]]`. Give the `<summary>` a descriptive label — "Details" is wasted real estate; the summary IS what the reviewer reads to decide whether to expand.
+
+Override when the block IS the side-by-side comparison the reviewer needs at-a-glance — a 12-row before/after metric delta where every row matters can stay inline; a 5-row table that exists only to substantiate one already-stated number can fold.
+
+Interaction with single-level rule: if the enclosing `##` section is already `<details>`-wrapped per Trait 3, drop the inner fold (no nesting). Pick the collapse layer that better serves scannability — section-wrap for long PRs (>500 lines), block-fold for short PRs.
+
 ### 4. Anchor prior-run claims to a reproducible ID
 
 Every measured-data reference cites the exact run (BQ job ID, dbt run ID, commit SHA, CI URL) AND pastes the result inline. "Prior runs showed X" is invisible to the reviewer — name the run.
