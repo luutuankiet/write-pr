@@ -1,6 +1,6 @@
 {
   "name": "@luutuankiet/write-pr",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Evidence-driven Pull Request templating for Claude Code agents",
   "type": "module",
   "bin": {
