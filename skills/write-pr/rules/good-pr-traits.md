@@ -37,20 +37,35 @@ Behavior: workflow.md Step 4 catches symbolic form via regex. For verbal form, a
 
 ### 3. Collapse at section boundary
 
-GitHub PR viewer has no table of contents. A 1000-line PR is a wall of text on first paint. Fix: every top-level (`##`) section IS the `<summary>` of a `<details>` wrap — the section header itself, not just inner content blocks.
+GitHub PR viewer has no table of contents. A 1000-line PR is a wall of text on first paint. Fix: wrap section BODIES in `<details>`, leaving `##` headings visible at the section level — reviewer scans the heading outline, expands the bodies that matter.
+
+**Correct shape:**
+
+```markdown
+## Root cause
+
+<details><summary>Click to expand details</summary>
+
+...body...
+
+</details>
+```
+
+`Click to expand details` is the default summary text. Override with a more descriptive label when it earns its keep (e.g. `<summary>Exhaustive 56-field audit</summary>`).
 
 | Pattern | Renders as |
 |---|---|
-| `<details><summary>## My Section</summary>...body...</details>` | Collapsed section in the rendered list — reviewer scans titles, expands what matters |
-| Bare `## My Section` + inner `<details>` blocks | Wall of section headers — reviewer must scroll the whole PR linearly |
+| Heading visible at `##`, body wrapped in `<details>` with `Click to expand details` summary | Scannable section outline + explicit expand affordance per section |
+| `<details><summary>## My Section</summary>...body...</details>` | **ANTIPATTERN** — heading becomes the click-target and disappears when collapsed; loses the GitHub anchor link; the expand affordance is invisible because the bold heading looks like an ordinary heading. Render-time lint hard-errors on this. |
+| Bare `## My Section` + inner `fold` blocks only | Reviewer must scroll the whole PR linearly — fine for short PRs, breaks for >500 lines |
 
-**Single-level rule (per user design: no nesting):** if you wrap a section in `<details>`, don't ALSO use `fold` (or `json_pretty(fold=true)`) inside that section. Pick ONE collapse layer.
+**Single-level rule (per user design: no nesting):** if you wrap a section's body in `<details>`, don't ALSO use `fold` (or `json_pretty(fold=true)`) on individual blocks inside that section. Pick ONE collapse layer.
 
-Alternative pattern: leave `##` sections un-wrapped and use `fold` for individually-long inner blocks. Works fine for short PRs (≤200 lines) where scannability isn't critical. For long PRs (>500 lines), section-boundary wrap is the only pattern that actually solves the wall-of-text problem.
+Alternative pattern: leave `##` sections fully un-wrapped and use `fold` for individually-long inner blocks (see Trait 3a size heuristic). Works fine for short PRs (≤200 lines) where scannability isn't critical. For long PRs (>500 lines), section-body wrap is the only pattern that actually solves the wall-of-text problem.
 
 `###` sub-sections always stay un-wrapped regardless of which pattern you chose.
 
-Behavior: after rendering, top-level-section count (`^## `) should equal `<details><summary>## ` count (modulo intentional always-visible sections like TL;DR). Alternative pattern: `<details><summary>## ` count is 0 — folds appear at block level only.
+Behavior: in the rendered output, any `<summary>` containing a `#` heading line is the antipattern — the render step lints for this and fails hard. See `rules/template-gotchas.md` Gotcha 3.
 
 ### 3a. Block-level collapse trigger (size heuristic)
 

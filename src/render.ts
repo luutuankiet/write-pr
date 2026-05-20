@@ -106,6 +106,27 @@ export async function renderPR(templatePath: string, evidenceDir: string, outPat
 
   const rendered = env.renderString(body, { meta: frontmatter });
 
+  // Lint: `<summary>` containing a markdown heading is the Trait 3 antipattern.
+  // A heading inside `<summary>` collapses the section title behind the click-target —
+  // reviewers see what looks like a normal heading with no visible expand affordance, and
+  // the heading drops out of GitHub's anchor-link graph. See rules/template-gotchas.md Gotcha 3.
+  const summaryRegex = /<summary\b[^>]*>([\s\S]*?)<\/summary>/g;
+  const violations: string[] = [];
+  let summaryMatch: RegExpExecArray | null;
+  while ((summaryMatch = summaryRegex.exec(rendered)) !== null) {
+    const headingMatch = summaryMatch[1].match(/^\s*(#{1,6})\s+(.+)$/m);
+    if (headingMatch) violations.push(headingMatch[0].trim());
+  }
+  if (violations.length > 0) {
+    throw new Error(
+      `write-pr: heading-inside-<summary> antipattern detected (${violations.length} occurrence${violations.length > 1 ? 's' : ''}):\n` +
+        violations.map((v) => `  - ${v}`).join('\n') +
+        `\n\nHeadings inside <summary> collapse the section title behind the click-target.\n` +
+        `Move the heading OUTSIDE the <details> wrap; use "Click to expand details" (or a descriptive label) as the <summary> text.\n` +
+        `See rules/template-gotchas.md Gotcha 3 and rules/good-pr-traits.md Trait 3.`,
+    );
+  }
+
   // Prepend title heading if frontmatter specifies one and body doesn't already lead with `# `.
   const bodyClean = rendered.replace(/^\s*\n+/, '');
   const out = frontmatter.title && !bodyClean.startsWith('# ')

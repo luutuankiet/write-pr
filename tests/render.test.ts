@@ -69,6 +69,33 @@ describe('renderPR — template gotchas (Phase 2 A regression)', () => {
   });
 });
 
+describe('renderPR — heading-inside-summary lint (Trait 3 antipattern)', () => {
+  it('throws when a `## heading` appears inside <summary>', async () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'write-pr-summary-lint-'));
+    const tpl = join(tmp, 't.j2');
+    writeFileSync(
+      tpl,
+      `---\ntitle: "T"\n---\n\n<details><summary>\n\n## Root cause\n\n</summary>\n\nbody\n\n</details>\n`,
+    );
+    const out = join(tmp, 'out.md');
+    await expect(renderPR(tpl, tmp, out)).rejects.toThrow(/heading-inside-<summary>/);
+  });
+
+  it('accepts heading OUTSIDE summary + body wrapped in <details>', async () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'write-pr-summary-ok-'));
+    const tpl = join(tmp, 't.j2');
+    writeFileSync(
+      tpl,
+      `---\ntitle: "T"\n---\n\n## Root cause\n\n<details><summary>Click to expand details</summary>\n\nbody\n\n</details>\n`,
+    );
+    const out = join(tmp, 'out.md');
+    await renderPR(tpl, tmp, out);
+    const txt = readFileSync(out, 'utf8');
+    expect(txt).toContain('## Root cause');
+    expect(txt).toContain('<summary>Click to expand details</summary>');
+  });
+});
+
 describe('renderPR — frontmatter title prepend', () => {
   it('prepends title heading when body does not start with `# `', async () => {
     const tmp = mkdtempSync(join(tmpdir(), 'write-pr-title1-'));

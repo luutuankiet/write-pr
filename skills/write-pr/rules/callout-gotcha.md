@@ -55,4 +55,4 @@ The `manifest_tip_header.j2` snippet enforces this — TIP callout, then ticket 
 
 ## Interaction with Trait 3 (`rules/good-pr-traits.md`)
 
-If you're following Trait 3 (every top-level `##` section wrapped in `<details>`), any callout that conceptually announces the section must be placed BEFORE the `<details>` wrap, not inside it. Otherwise it renders as plain quoted text. Place callouts at the TOP of the PR or between section wraps, never inside one.
+If you're following Trait 3 (each `##` heading stays visible at the section level + the section body is wrapped in `<details>`), any callout that conceptually announces the section must be placed BEFORE the `<details>` opens — typically right after the `##` heading and before the `<details>` block. Inside `<details>` the callout renders as plain quoted text. Place callouts at the TOP of the PR, right under section headings, or between section wraps — never inside one.

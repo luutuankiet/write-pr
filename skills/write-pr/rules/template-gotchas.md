@@ -62,6 +62,66 @@ Rendered: `` Use `[[ rows | md_table ]]` to render a table. ``
 
 Nunjucks `{% raw %}` / `{% endraw %}` does NOT work with custom delimiters. The raw-mode lexer hard-codes default `{% endraw %}` as the scanner target — it ignores the configured `blockStart` / `blockEnd`. With write-pr's `[% %]`, the parser sees `[% raw %]` as a regular block tag, then later trips on `[% endraw %]` with `unknown block tag: endraw`. Use the string-literal pattern above instead.
 
+## Gotcha 3: `## heading` inside `<summary>` (HARD-LINTED at render)
+
+A markdown heading placed inside a `<summary>` element looks like a clever way to make the section header double as the click-target. It is, in fact, the antipattern this skill explicitly fails on.
+
+### Symptom
+
+```jinja
+<details><summary>
+
+## Root cause
+
+</summary>
+
+...body...
+
+</details>
+```
+
+On GitHub: the bold heading text IS the click-target. When collapsed (the default), reviewers see what looks like a normal `##` heading with no visible affordance that there's hidden content underneath. The heading also drops out of GitHub's anchor-link graph (no `#root-cause` jump link).
+
+The render step lints for this and throws:
+
+```
+write-pr: heading-inside-<summary> antipattern detected (1 occurrence):
+  - ## Root cause
+
+Headings inside <summary> collapse the section title behind the click-target.
+Move the heading OUTSIDE the <details> wrap; use "Click to expand details"
+(or a descriptive label) as the <summary> text.
+See rules/template-gotchas.md Gotcha 3 and rules/good-pr-traits.md Trait 3.
+```
+
+### Workaround
+
+Keep `## heading` visible at the section level. Wrap only the body. Default summary text is `Click to expand details`; override with a descriptive label when it earns its keep.
+
+```jinja
+## Root cause
+
+<details><summary>Click to expand details</summary>
+
+...body...
+
+</details>
+```
+
+For an evidence dump that warrants a more descriptive label:
+
+```jinja
+## Validation
+
+<details><summary>Exhaustive 56-field audit</summary>
+
+...table + analysis...
+
+</details>
+```
+
+See `rules/good-pr-traits.md` Trait 3 for the full rule.
+
 ## Pre-render check
 
 To catch undefined-variable silently-empty renders early, render to /tmp and grep:
