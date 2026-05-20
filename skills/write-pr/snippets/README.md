@@ -29,6 +29,7 @@ duplicating the markdown structure.
 
 | Snippet | When to use | Filters used |
 |---|---|---|
+| `narrative_tldr.j2` | 4-paragraph executive narrative ABOVE the metrics table — see Trait 8 | — |
 | `tldr_kv_table.j2` | Top-of-PR 2-col metrics summary | `md_table` |
 | `manifest_tip_header.j2` | TIP callout + ticket link | `gh_callout` |
 | `before_after_img_table.j2` | 2-col before/after screenshots | — |

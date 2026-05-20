@@ -9,7 +9,7 @@ description: Render evidence-driven Pull Requests with inline file:line citation
 
 A two-step compile pattern for writing Pull Requests at the density of a 3-tier evidence stack — without paying for raw tool I/O in agent context.
 
-The skill describes **7 quality traits** a good PR has (see `rules/good-pr-traits.md`). It does NOT prescribe a section outline — structure is the agent's choice, the traits apply regardless.
+The skill describes **8 quality traits** a good PR has (see `rules/good-pr-traits.md`). It does NOT prescribe a section outline — structure is the agent's choice, the traits apply regardless.
 
 Reference quality bar: SCD-2 pre-explode refactor PR with per-product SUM validation, exhaustive 56-field schema audit, canonical multiset decomposition, plus CI-run failure attribution. 62 KB / 890 lines. Zero reviewer context-switching.
 
@@ -71,10 +71,11 @@ Full signatures: `rules/placeholder-vocab.md`. Two known custom-delim edge cases
 
 ## Snippets (composable section patterns)
 
-10 snippets at `snippets/*.j2` covering the most-frequent sections from a survey of 7 real PRs (5/7: TL;DR + Validation + Changes; 4/7: Before/After + Checklist; 3/7: Mermaid flowchart):
+11 snippets at `snippets/*.j2` covering the most-frequent sections from a survey of 7 real PRs (5/7: TL;DR + Validation + Changes; 4/7: Before/After + Checklist; 3/7: Mermaid flowchart):
 
 | Snippet | Section | Filters used |
 |---|---|---|
+| `narrative_tldr.j2` | 4-paragraph executive narrative ABOVE the metrics table (Trait 8) | — |
 | `tldr_kv_table.j2` | Top-of-PR metrics summary | `md_table` |
 | `manifest_tip_header.j2` | TIP callout + ticket link | `gh_callout` |
 | `before_after_img_table.j2` | 2-col before/after screenshots | — |
@@ -90,7 +91,7 @@ Two usage modes: copy-paste (most agents) or `[% include 'snippets/X.j2' %]` (th
 
 ## Rules of thumb
 
-- `rules/good-pr-traits.md` — **READ FIRST.** The 7 quality traits a good PR has (spoon-feed evidence, resolve private context [symbolic + verbal], collapse at section boundary, anchor prior runs, text-fallback for auth-gated links, hypothesis tag, file:line citations). Describes traits, NOT a template.
+- `rules/good-pr-traits.md` — **READ FIRST.** The 8 quality traits a good PR has (spoon-feed evidence, resolve private context [symbolic + verbal], collapse at section boundary, anchor prior runs, text-fallback for auth-gated links, hypothesis tag, file:line citations, narrative-first TL;DR). Describes traits, NOT a template.
 - `rules/workflow.md` — the 5-step agent workflow (gather → template → render → pre-flight greps → paste)
 - `rules/disk-convention.md` — evidence/ directory layout (queries/code/diagrams/ci_runs/images) + cwd vs evidence vs root_path
 - `rules/placeholder-vocab.md` — full filter + global signatures with examples

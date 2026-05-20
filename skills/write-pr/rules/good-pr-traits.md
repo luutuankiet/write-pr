@@ -4,7 +4,7 @@ write-pr does NOT prescribe a section outline. Pick the structure that fits the 
 
 **write-pr DOES prescribe traits.** A good PR has these traits regardless of which sections you chose. Read this file BEFORE writing the template; audit your draft against it BEFORE rendering.
 
-## The 7 traits
+## The 8 traits
 
 ### 1. Spoon-feed evidence inline
 
@@ -118,6 +118,40 @@ Every file path in prose carries `:N` or `:N-M`. Bare `src/foo.sql` is one tab-o
 
 Behavior: grep your draft for `\.(sql|py|ts|tsx|yml|yaml)\b[^:]`. Each hit needs a line range. See `rules/root-path.md` for the `code_expand` mechanics that make this cheap.
 
+### 8. Lead with narrative TL;DR, not the data table
+
+A bare metrics table at the top of a non-trivial PR forces the reviewer to reconstruct the story from numbers. Open with a 4-paragraph executive narrative — problem → cause → fix → safety — THEN the data table. The numbers become confirmation of the story, not the story itself.
+
+| Good | Bad |
+|---|---|
+| `**The problem**` paragraph naming the symptom + one concrete metric, then `**Why it was slow**`, `**The fix**`, `**Why it's safe**` — THEN the delta table | `## TL;DR` directly followed by a 6-row metrics table; reviewer has to reconstruct what happened from the numbers |
+| Each paragraph 2-5 sentences; bolded label; one or two `**bolded**` headline numbers inside the prose | Multi-paragraph prose dump; numbers buried mid-sentence; no scannable bold-label structure |
+| Paragraph 4 explicitly names what is NOT changed and what is out of scope | "Should be safe" without naming the semantic-preservation argument |
+
+The 4-paragraph pattern:
+
+| Paragraph | Bolded label (perf default) | Content |
+|---|---|---|
+| 1 | **The problem** | What was wrong; key user-visible symptom; one concrete headline number |
+| 2 | **Why it was slow** | Root cause mechanism (planner behavior, race condition, schema mismatch, etc.); the specific bottleneck |
+| 3 | **The fix** | What you did + the key insight; one or two performance / correctness numbers |
+| 4 | **Why it's safe** | Semantic preservation argument; what is NOT changed; what is out of scope |
+
+Label adapts to PR type — paragraphs 1 and 3 stay the same; 2 and 4 swap to fit the change:
+
+| PR type | Paragraph 2 label | Paragraph 4 label |
+|---|---|---|
+| Perf refactor | "Why it was slow" | "Why it's safe" |
+| Bug fix | "Why it broke" | "Why this won't regress" |
+| Schema migration | "Why the old shape hurt" | "Why the migration is reversible" |
+| Security fix | "How it was exploitable" | "What's still in scope to harden" |
+
+Behavior: for any PR longer than ~200 lines OR involving a non-trivial mechanism (perf refactor, schema migration, bugfix with subtle correctness implications), draft the narrative section FIRST and let it set the section structure for the rest of the PR. The reviewer reads the 4 paragraphs (~30 seconds), decides whether they care, then expands the wrapped sections for evidence.
+
+When to skip: trivial single-file fixes, dependency bumps, config tweaks — there is no "story" worth telling. A bare metrics table or a single short prose paragraph is sufficient.
+
+The `snippets/narrative_tldr.j2` snippet provides this pattern as a parameterized include.
+
 ## Meta-trait: describe, don't template
 
 These are the QUALITY BAR. They are NOT a section outline.
@@ -126,9 +160,9 @@ These are the QUALITY BAR. They are NOT a section outline.
 - Schema migration → probably opens with the upgrade path
 - Bug fix → probably opens with the reproduction
 
-What stays the same across all three: the 7 traits. Apply them to whatever structure fits.
+What stays the same across all three: the 8 traits. Apply them to whatever structure fits.
 
-The `snippets/` directory is a MENU of composable section patterns, not a required outline. Use 0, 1, or all 10 of them — your call. Just hit the 7 traits.
+The `snippets/` directory is a MENU of composable section patterns, not a required outline. Use 0, 1, or all 11 of them — your call. Just hit the 8 traits.
 
 ## Pre-render trait audit
 
@@ -157,6 +191,14 @@ rg -in '\b(likely|probably|suggests|appears|expected|presumably)\b' PR.md
 # Trait 7: file paths missing line range
 rg -n '\.(sql|py|ts|tsx|yml|yaml|md)\b[^:]' PR.md
 # Each hit: confirm whether a line range belongs
+
+# Trait 8: narrative TL;DR for non-trivial PRs (soft check)
+LINES=$(wc -l < PR.md)
+if [ "$LINES" -gt 200 ]; then
+  rg -q '^\*\*The problem\*\*' PR.md \
+    && echo "Trait 8: ✓ narrative TL;DR detected" \
+    || echo "Trait 8: ⚠ PR is $LINES lines but no '**The problem**' paragraph — consider narrative TL;DR (see §8)"
+fi
 ```
 
 Hard gate: Trait 2 symbolic (zero hits). Soft gates: everything else (review-driven).
