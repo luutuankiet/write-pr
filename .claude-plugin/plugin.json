@@ -1,0 +1,9 @@
+{
+  "name": "write-pr",
+  "description": "Render evidence-driven Pull Requests with inline file:line citations, spoon-fed SQL+results, vanilla <details> collapsible sections, and dbt-Jinja-safe templating.",
+  "author": {
+    "name": "luutuankiet",
+    "url": "https://github.com/luutuankiet"
+  },
+  "skills": ["./skills/write-pr"]
+}
